@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de QI - Descobre a Tua Inteligência</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <span>QI Test Pro</span>
+            </div>
+            <nav class="nav">
+                <a href="#inicio">Início</a>
+                <a href="#como-funciona">Como Funciona</a>
+                <a href="#sobre">Sobre</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Landing Page -->
+    <section id="inicio" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Descobre o Teu <span class="gradient-text">Quociente de Inteligência</span></h1>
+                <p class="hero-description">
+                    Teste científico profissional com 30 questões cuidadosamente selecionadas. 
+                    Recebe o teu resultado detalhado e partilha nas redes sociais!
+                </p>
+                <div class="hero-features">
+                    <div class="feature">
+                        <i class="fas fa-clock"></i>
+                        <span>20 minutos</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-questions"></i>
+                        <span>30 questões</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-certificate"></i>
+                        <span>Resultado certificado</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-share-alt"></i>
+                        <span>Partilha nas redes</span>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-large" onclick="startQuiz()">
+                    <i class="fas fa-play"></i>
+                    Começar Teste de QI
+                </button>
+                <p class="price-info">
+                    <i class="fas fa-info-circle"></i>
+                    Teste completamente gratuito • Resultado detalhado
+                </p>
+            </div>
+            <div class="hero-visual">
+                <div class="brain-animation">
+                    <i class="fas fa-brain"></i>
+                    <div class="pulse-rings">
+                        <div class="pulse-ring"></div>
+                        <div class="pulse-ring"></div>
+                        <div class="pulse-ring"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Como Funciona -->
+    <section id="como-funciona" class="how-it-works">
+        <div class="container">
+            <h2>Como Funciona</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Responde às Questões</h3>
+                        <p>30 questões de lógica, matemática e raciocínio espacial</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Paga o Resultado</h3>
+                        <p>Apenas 1€ para aceder ao teu QI detalhado e análise completa</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Partilha o Resultado</h3>
+                        <p>Recebe uma imagem profissional para partilhar nas redes sociais</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quiz Container -->
+    <div id="quiz-container" class="quiz-container hidden">
+        <div class="quiz-header">
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <span class="progress-text" id="progress-text">Questão 1 de 30</span>
+            </div>
+            <div class="timer">
+                <i class="fas fa-clock"></i>
+                <span id="timer">20:00</span>
+            </div>
+        </div>
+
+        <div class="quiz-content">
+            <div class="question-container">
+                <h2 class="question-title" id="question-title">Pergunta será carregada aqui</h2>
+                <div class="question-image" id="question-image"></div>
+                <div class="answers" id="answers-container">
+                    <!-- Respostas serão inseridas dinamicamente -->
+                </div>
+            </div>
+        </div>
+
+        <div class="quiz-footer">
+            <button class="btn btn-secondary" id="prev-btn" onclick="previousQuestion()" disabled>
+                <i class="fas fa-chevron-left"></i>
+                Anterior
+            </button>
+            <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled>
+                Próxima
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            <button class="btn btn-success hidden" id="finish-btn" onclick="finishQuiz()">
+                <i class="fas fa-check"></i>
+                Terminar Teste
+            </button>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Acede ao Teu Resultado</h2>
+                <span class="close" onclick="closePaymentModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="result-preview">
+                    <div class="score-preview">
+                        <div class="score-circle">
+                            <div class="score-value">???</div>
+                            <div class="score-label">QI</div>
+                        </div>
+                    </div>
+                    <p>Completaste o teste com sucesso! Para acederes ao teu resultado detalhado e à imagem para partilha, efetua o pagamento de apenas 1€.</p>
+                </div>
+                
+                <div class="payment-form">
+                    <h3>Informações de Pagamento</h3>
+                    <form id="payment-form">
+                        <div class="form-group">
+                            <label>Email:</label>
+                            <input type="email" id="email" required placeholder="teu@email.com">
+                        </div>
+                        <div id="card-element">
+                            <!-- Stripe card element -->
+                        </div>
+                        <div id="card-errors" class="error-message"></div>
+                        <button type="submit" class="btn btn-primary btn-large">
+                            <i class="fas fa-lock"></i>
+                            Pagar 1€ - Ver Resultado
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Acede ao Teu Resultado</h2>
+                <span class="close" onclick="closePaymentModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="result-preview">
+                    <div class="score-preview">
+                        <div class="score-circle">
+                            <div class="score-value">???</div>
+                            <div class="score-label">QI</div>
+                        </div>
+                    </div>
+                    <p>Completaste o teste com sucesso! Para acederes ao teu resultado detalhado e à imagem para partilha, efetua o pagamento de apenas 1€.</p>
+                </div>
+                
+                <div class="payment-form">
+                    <h3>Informações de Pagamento</h3>
+                    <form id="payment-form">
+                        <div class="form-group">
+                            <label>Email:</label>
+                            <input type="email" id="email" required placeholder="teu@email.com">
+                        </div>
+                        <div id="card-element">
+                            <!-- Stripe card element -->
+                        </div>
+                        <div id="card-errors" class="error-message"></div>
+                        <button type="submit" class="btn btn-primary btn-large">
+                            <i class="fas fa-lock"></i>
+                            Pagar 1€ - Ver Resultado
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Page -->
+    <div id="results-container" class="results-container hidden">
+        <div class="container">
+            <div class="results-content" id="results-for-sharing">
+                <div class="results-header">
+                    <h1>O Teu Resultado QI</h1>
+                    <div class="date">Testado em: <span id="test-date"></span></div>
+                </div>
+                
+                <div class="main-score">
+                    <div class="score-display">
+                        <div class="score-circle-large">
+                            <div class="score-value-large" id="final-score">128</div>
+                            <div class="score-label-large">QI</div>
+                        </div>
+                        <div class="score-interpretation" id="score-interpretation">
+                            Inteligência Superior
+                        </div>
+                    </div>
+                </div>
+
+                <div class="score-breakdown">
+                    <h3>Análise Detalhada</h3>
+                    <div class="breakdown-grid">
+                        <div class="breakdown-item">
+                            <div class="breakdown-label">Raciocínio Lógico</div>
+                            <div class="breakdown-bar">
+                                <div class="breakdown-fill" id="logic-score" style="width: 85%"></div>
+                            </div>
+                            <div class="breakdown-percentage">85%</div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="breakdown-label">Matemática</div>
+                            <div class="breakdown-bar">
+                                <div class="breakdown-fill" id="math-score" style="width: 78%"></div>
+                            </div>
+                            <div class="breakdown-percentage">78%</div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="breakdown-label">Raciocínio Espacial</div>
+                            <div class="breakdown-bar">
+                                <div class="breakdown-fill" id="spatial-score" style="width: 92%"></div>
+                            </div>
+                            <div class="breakdown-percentage">92%</div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="breakdown-label">Padrões</div>
+                            <div class="breakdown-bar">
+                                <div class="breakdown-fill" id="patterns-score" style="width: 88%"></div>
+                            </div>
+                            <div class="breakdown-percentage">88%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comparison">
+                    <h3>Comparação com a População</h3>
+                    <div class="percentile">
+                        <span class="percentile-value" id="percentile">97º</span>
+                        <span class="percentile-label">percentil</span>
+                    </div>
+                    <p id="comparison-text">O teu QI está entre os 3% mais altos da população.</p>
+                </div>
+
+                <div class="watermark">QITestPro.com</div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary btn-large" onclick="shareResults()">
+                    <i class="fas fa-share-alt"></i>
+                    Partilhar Resultado
+                </button>
+                <button class="btn btn-secondary" onclick="downloadImage()">
+                    <i class="fas fa-download"></i>
+                    Descarregar Imagem
+                </button>
+                <button class="btn btn-outline" onclick="restartQuiz()">
+                    <i class="fas fa-redo"></i>
+                    Fazer Novo Teste
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="logo">
+                        <i class="fas fa-brain"></i>
+                        <span>QI Test Pro</span>
+                    </div>
+                    <p>Testa a tua inteligência com o nosso questionário científico profissional.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Links</h4>
+                    <ul>
+                        <li><a href="#inicio">Início</a></li>
+                        <li><a href="#como-funciona">Como Funciona</a></li>
+                        <li><a href="#sobre">Sobre</a></li>
+                        <li><a href="#privacidade">Privacidade</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Suporte</h4>
+                    <ul>
+                        <li><a href="mailto:suporte@qitestpro.com">Contacto</a></li>
+                        <li><a href="#faq">FAQ</a></li>
+                        <li><a href="#ajuda">Ajuda</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 QI Test Pro. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="questions.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
