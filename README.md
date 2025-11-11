@@ -45,6 +45,37 @@ Se quiseres, posso também:
 - Gerar um pequeno backend (Node/Express) que valide webhooks e sinalize pedidos como pagos;
 - Instruir passo-a-passo como configurar o `success_url` e testar em modo *test* antes de ir para produção.
 
+#### Como configurar o success_url do Payment Link (para mostrar resultados automaticamente)
+
+1. No Stripe Dashboard, ao criar/editar o Payment Link (ou Checkout), define a `success_url` para apontar para a tua página onde o utilizador volta após o pagamento. Inclui o placeholder `{CHECKOUT_SESSION_ID}` para que o Stripe adicione o id da sessão. Exemplo:
+
+	`https://teu-dominio.com/?session_id={CHECKOUT_SESSION_ID}`
+
+2. Quando o Stripe redirecionar o utilizador para essa URL, o frontend (o `script.js` já atualizado) irá ler `session_id` da query string e chamar o endpoint `/verify-session` no teu backend para confirmar se a sessão foi paga.
+
+3. Se o backend confirmar `paid: true`, o site mostrará os resultados automaticamente.
+
+#### Deploy rápido do backend
+
+- Copia a pasta `server/` para o teu ambiente de deploy.
+- Cria um ficheiro `.env` com as variáveis definidas em `server/.env.example` e coloca a tua `STRIPE_SECRET_KEY` e (opcional) `STRIPE_WEBHOOK_SECRET`.
+- Instala dependências e inicia:
+
+```bash
+cd server
+npm install
+npm start
+```
+
+- Configura o `BACKEND_URL` no `script.js` para apontar para o URL onde o backend está publicado (ou deixa vazio se o backend estiver no mesmo domínio da frontend).
+
+#### Webhooks
+
+- No Stripe Dashboard -> Developers -> Webhooks, cria um endpoint `https://meu-backend.com/webhook` e copia o `Signing secret` para `STRIPE_WEBHOOK_SECRET` no `.env`.
+- O servidor `server/server.js` trata `checkout.session.completed` e armazena localmente (em `payments.json`) o estado pago.
+
+> Nota: `payments.json` é apenas para demonstração/local. Em produção usa uma base de dados genuína.
+
 ### 2. Hospedagem
 
 Podes hospedar este projeto em qualquer serviço de hospedagem estática:

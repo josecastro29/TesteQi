@@ -12,6 +12,10 @@ const stripe = Stripe('pk_live_51SS86ADIVJW2Hnoe2NFkRdHPePb18BuvhMB9MfKIWY9U8zjd
 const elements = stripe.elements();
 let cardElement;
 
+// Backend URL (se o backend estiver noutro domínio, coloca aqui, ex: 'https://meu-backend.com')
+// Se deixares vazio, usará a origem atual (window.location.origin)
+const BACKEND_URL = '';
+
 // Inicialização quando a página carrega
 document.addEventListener('DOMContentLoaded', function() {
     // Smooth scrolling para links de navegação
@@ -32,7 +36,43 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Embaralhar respostas de cada questão
     quizQuestions.forEach(question => shuffleAnswers(question));
+
+    // Se a página for aberta com um session_id (retorno do Stripe), valida o pagamento
+    checkPaymentOnLoad();
 });
+
+// Se o Stripe redirecionar para a página com ?session_id=..., validamos com o backend
+async function checkPaymentOnLoad() {
+    try {
+        const params = new URLSearchParams(window.location.search);
+        const sessionId = params.get('session_id');
+        if (!sessionId) return;
+
+        // Decide a origem do backend
+        const origin = BACKEND_URL && BACKEND_URL.trim() !== '' ? BACKEND_URL.replace(/\/+$/, '') : window.location.origin;
+
+        // Chama o endpoint de verificação
+        const res = await fetch(origin + '/verify-session?session_id=' + encodeURIComponent(sessionId));
+        if (!res.ok) {
+            console.error('Erro ao verificar sessão:', await res.text());
+            alert('Não foi possível verificar o pagamento. Se já pagaste, espera alguns minutos e tenta novamente.');
+            return;
+        }
+
+        const data = await res.json();
+        if (data.paid) {
+            // Marca pagamento como concluído e mostra resultados
+            paymentCompleted = true;
+            // Fecha modal caso esteja aberto
+            try { closePaymentModal(); } catch (e) {}
+            showResults();
+        } else {
+            alert('Pagamento ainda não confirmado. Se já efetuaste o pagamento, poderá demorar alguns segundos. Tenta novamente em breve.');
+        }
+    } catch (err) {
+        console.error('Erro em checkPaymentOnLoad:', err);
+    }
+}
 
 // Iniciar o questionário
 function startQuiz() {
