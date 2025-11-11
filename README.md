@@ -17,17 +17,33 @@ Um questionário de QI moderno e responsivo completamente gratuito com funcional
 
 ### 1. Configuração do Stripe (Pagamentos)
 
-Para ativar os pagamentos, precisas de:
+Se já tens a conta Stripe configurada, podes usar duas abordagens simples:
 
-1. Criar uma conta no [Stripe](https://stripe.com)
-2. Obter as tuas chaves API (pública e secreta)
-3. No ficheiro `script.js`, substitui a linha:
-   ```javascript
-   const stripe = Stripe('pk_test_51234567890'); // Substitua pela sua chave Stripe
-   ```
-   pela tua chave pública real.
+- Usar um *Payment Link* (página de pagamento hospedada pela Stripe) — mais simples, não precisa de backend;
+- Usar Stripe Checkout / PaymentIntents com um backend — mais flexível e seguro para validar pagamentos via webhooks.
 
-4. Para um sistema de pagamento completo, precisarás de um backend para processar os pagamentos. Por agora, o sistema simula o pagamento.
+O projeto já está preparado para redirecionar para um *Payment Link*. As informações que fornem fornecidas foram:
+
+- Chave pública (publishable key): `pk_live_51SS86ADIVJW2Hnoe2NFkRdHPePb18BuvhMB9MfKIWY9U8zjdeGteierYxOTKlgGALkkZ6hrXEpKLogFhkZCaKSJV00mswYJzKg`
+- Chave secreta: (NÃO INSERIR NO REPOSITÓRIO) — mantem a `sk_live_...` apenas no teu servidor/ambiente seguro.
+- Payment Link: `https://buy.stripe.com/4gM3cvf2cdoF41F8JW8EM00`
+
+O `script.js` foi atualizado para usar a tua chave pública e o formulário de pagamento redireciona para o *Payment Link* (abre numa nova aba). O fluxo básico é:
+
+1. O utilizador completa o teste e clica para pagar.
+2. O `payment-form` recolhe o email e redireciona o utilizador para o URL do Stripe (hosted payment link).
+3. A Stripe processa o pagamento; a página de sucesso/cancel será a definida nas configurações do Payment Link no dashboard.
+
+Notas de segurança e melhores práticas:
+
+- Nunca comites a chave secreta (`sk_...`) no repositório. Guarda-a apenas em variáveis de ambiente do teu servidor.
+- Se precisares de validar pagamentos no teu site (por exemplo, para liberar automaticamente o resultado), cria um backend que verifique eventos via *webhooks* do Stripe. O webhook fornece garantias de que o pagamento foi realmente efetuado.
+- Configura a *success_url* e *cancel_url* no Payment Link / Stripe Dashboard para apontar de volta para o teu site (ex.: `https://teu-dominio.com/success`).
+
+Se quiseres, posso também:
+
+- Gerar um pequeno backend (Node/Express) que valide webhooks e sinalize pedidos como pagos;
+- Instruir passo-a-passo como configurar o `success_url` e testar em modo *test* antes de ir para produção.
 
 ### 2. Hospedagem
 

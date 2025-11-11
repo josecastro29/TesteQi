@@ -6,8 +6,9 @@ let timerInterval;
 let quizStarted = false;
 let paymentCompleted = false;
 
-// Stripe configuração (substitua pela sua chave pública)
-const stripe = Stripe('pk_test_51234567890'); // Substitua pela sua chave Stripe
+// Stripe configuração (chave pública fornecida)
+// NOTA: a chave pública (publishable key) pode estar no frontend. Nunca coloque a chave secreta no código público.
+const stripe = Stripe('pk_live_51SS86ADIVJW2Hnoe2NFkRdHPePb18BuvhMB9MfKIWY9U8zjdeGteierYxOTKlgGALkkZ6hrXEpKLogFhkZCaKSJV00mswYJzKg');
 const elements = stripe.elements();
 let cardElement;
 
@@ -214,26 +215,28 @@ async function handlePayment(event) {
         return;
     }
 
-    // Simular pagamento (em produção, usar Stripe real)
+    // Redireciona para o Payment Link fornecido (hosted pela Stripe)
+    // O link foi fornecido pelo utilizador: https://buy.stripe.com/4gM3cvf2cdoF41F8JW8EM00
+    // Opcionalmente, tentamos passar o email como prefilled_email (Stripe aceita alguns parâmetros dependendo da configuração)
     try {
-        // Aqui farias a chamada real ao Stripe
-        // const result = await stripe.createPaymentMethod({...});
-        
-        // Simulação de sucesso
-        setTimeout(() => {
-            paymentCompleted = true;
-            closePaymentModal();
-            showResults();
-        }, 2000);
-        
-        // Mostrar loading
+        const paymentLink = 'https://buy.stripe.com/4gM3cvf2cdoF41F8JW8EM00';
+        const urlWithEmail = paymentLink + (paymentLink.includes('?') ? '&' : '?') + 'prefilled_email=' + encodeURIComponent(email);
+
+        // Mostrar feedback e redirecionar (abre em nova aba para não perder o estado se necessário)
         const submitBtn = event.target.querySelector('button[type="submit"]');
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A processar...';
-        submitBtn.disabled = true;
-        
+        if (submitBtn) {
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A redirecionar...';
+            submitBtn.disabled = true;
+        }
+
+        window.open(urlWithEmail, '_blank');
+
+        // Informar o utilizador que o pagamento acontece numa página segura hospedada pelo Stripe.
+        alert('Serás redirecionado para a página de pagamento segura da Stripe. Após o pagamento, usa a página de sucesso configurada no Stripe para voltar ao site.');
+
     } catch (error) {
-        alert('Erro no pagamento. Tenta novamente.');
-        console.error('Erro no pagamento:', error);
+        alert('Erro ao abrir o link de pagamento. Tenta novamente.');
+        console.error('Erro ao redirecionar para o Payment Link:', error);
     }
 }
 
